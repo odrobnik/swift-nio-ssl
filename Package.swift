@@ -83,6 +83,20 @@ let package = Package(
                 .define("_GNU_SOURCE"),
                 .define("_POSIX_C_SOURCE", to: "200112L"),
                 .define("_DARWIN_C_SOURCE"),
+                // Windows SDK header-collision workarounds, scoped to the
+                // BoringSSL sources so they do not leak into the Swift module
+                // importer (where _WINSOCKAPI_ would mis-import IPPROTO etc.):
+                //   _WINSOCKAPI_ — skip legacy <winsock.h> (collides w/ <winsock2.h>)
+                //   NOMINMAX     — no min()/max() macros (break numeric_limits<>::max())
+                //   NOCRYPT      — no <wincrypt.h> (defines X509_NAME / X509_EXTENSIONS)
+                .define("_WINSOCKAPI_", .when(platforms: [.windows])),
+                .define("NOMINMAX", .when(platforms: [.windows])),
+                .define("NOCRYPT", .when(platforms: [.windows])),
+            ],
+            cxxSettings: [
+                .define("_WINSOCKAPI_", .when(platforms: [.windows])),
+                .define("NOMINMAX", .when(platforms: [.windows])),
+                .define("NOCRYPT", .when(platforms: [.windows])),
             ]
         ),
         .target(
