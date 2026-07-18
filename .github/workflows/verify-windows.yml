@@ -1,0 +1,30 @@
+name: Verify Windows
+on:
+  push:
+    branches:
+      - verify-windows
+  workflow_dispatch:
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Swift
+        uses: SwiftyLab/setup-swift@latest
+        with:
+          swift-version: "6.3.1"
+      - name: Swift version
+        run: swift --version
+      - name: Build
+        run: swift build
+      - name: Build tests (informational)
+        continue-on-error: true
+        run: swift build --build-tests
+  build-macos:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build
